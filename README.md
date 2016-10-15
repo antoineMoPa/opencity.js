@@ -22,3 +22,9 @@ Some Reserved keywords:
     road, block, end, busstop, sidewalk, parkinglane, bikelane,
     buslane, middle, carlane, buslane, buildingedge, buildings,
     roundabout
+
+# Development
+
+## Tests
+
+Run tests by opening `test/index.html` or by running `test/test.js` in node/other.

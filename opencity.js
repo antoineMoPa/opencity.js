@@ -39,6 +39,7 @@ opencity.tokenize = function(str){
         for(var it = 0; it < tokens.length; it++){
             var t = tokens[it];
 
+            // Iteration count limiter
             its++;
             if(its > max_its){
                 console.log("Max iterations reached");
@@ -46,27 +47,35 @@ opencity.tokenize = function(str){
             }
 
             if((m = remaining.match(t[0])) != null){
-                if(t.length == 2){
-                    // Regex
-                    console.log("matched token " + t[1] + ": " + m);
-                    tokens.push([t[1],m[0]]);
-                }
+                toks.push([t[1],m[0]]);
                 remaining = remaining.substr(m[0].length, remaining.length);
                 match = true;
                 break;
             }
         }
+        
         if(!match){
             console.log("tokenization error at :'"+remaining.substr(0,15)+"[...]'");
-            return tokens;
+            return toks;
         }
 
     }
 
-    return toks
+    return toks;
 };
 
 opencity.parse = function(str){
     var toks = opencity.tokenize(str);
 
+    return {
+        getTokens: function(){
+            return toks;
+        }
+    }
 };
+
+if(typeof module != "undefined"){
+    module.exports = opencity;
+}
+
+

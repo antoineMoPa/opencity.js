@@ -6,19 +6,6 @@
 </head>
 <body>
     <canvas id="test-opencity"></canvas>
-    <script id="test-city" type="text/plaintext">
-road normal_road:
-    buildingedge($1)-sidewalk-parkinglane-bikelane-buslane-carlane-middle-carlane-buslane-buildingedge($2);
-end road;
-
-block normal_block:
-    $a, $b = normal_road(0.0, 0.0, 1.0, 0.0);
-    $c, $d = normal_road(0.0, 1.0, 1.0, 1.0);
-    buildings($b,$c);
-end block;
-
-block1(0.0, 1.0);
-    </script>
     <script src="../opencity.js"></script>
     <script src="test.js"></script>
 </body>
