@@ -58,7 +58,7 @@ assert_array_equals(
 assert_array_equals(
     opencity.parse("\n ").getTokens()[0],
     ["whitespace","\n "],
-    "should parseo whitespace"
+    "should parse whitespace"
 );
 
 
