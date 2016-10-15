@@ -21,7 +21,7 @@ opencity.tokens = [
     [/^\(/,"open_parens"],
     [/^\)/,"close_parens"],
     [/^[0-9]+\.[0-9]+/,"number"],
-    [/^[0-9]/,"number"],
+    [/^[0-9]+/,"number"],
     [/^\,/,"comma"],
     [/^;/,"end_statement"],
 ];
