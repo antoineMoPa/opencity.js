@@ -11,6 +11,10 @@ if(headless){
 var fails = 0;
 
 function array_equals(a,b){
+    if(!Array.isArray(a) || !Array.isArray(b)){
+	return false;
+    }
+    
     if(a.length != b.length){
         return false;
     }
@@ -40,7 +44,8 @@ function assert(bool_stmt, msg){
 function assert_equals(a, b, msg){
     if(a != b){
         fails++;
-        console.log("failed test: "+msg);
+	console.log(a + " != " + b);
+	console.log("failed test: "+msg);
     }
 }
 
@@ -176,7 +181,7 @@ assert_equals(
 // Road instantiation
 
 var road_i_statement = road_statement +
-    "normal_road(0.0, 0.0, 1.0, 0.0)\n";
+    "normal_road(0.0, 0.0, 1.0, 0.0);\n";
 
 var stmts = opencity.parse(road_i_statement).getStatements();
 
@@ -192,16 +197,28 @@ assert_equals(
     "should parse function name"
 );
 
+assert_equals(
+    stmts[1].args.length,
+    4,
+    "should read the right count of arguments"
+);
+
 assert_array_equals(
-    stmts[1].args,
-    ["0.0","0.0","1.0","0.0"],
+    stmts[1].args[0],
+    ["number","0.0"],
     "should read arguments"
 );
 
 var road_i2_statement = road_statement +
-    "a, b = normal_road(0.0, 0.0, 1.0, 0.0)\n";
+    "a, b = normal_road(0.0, 0.0, 1.0, 0.0);\n";
 
 var stmts = opencity.parse(road_i2_statement).getStatements();
+
+assert_equals(
+    stmts[1].type,
+    "func_call",
+    "should parse function call with return assignments"
+);
 
 assert_array_equals(
     stmts[1].assings,

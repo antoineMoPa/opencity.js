@@ -21,6 +21,7 @@ opencity.tokens = [
     [/^\$[0-9]+/,"$number"],
     [/^\$[a-zA-Z\_]+/,"$identifier"],
     [/^:/,"colon"],
+    [/^=/,"assignment"],
     [/^\(/,"open_parens"],
     [/^\)/,"close_parens"],
     [/^[0-9]+\.[0-9]+/,"number"],
@@ -75,7 +76,7 @@ opencity.parse = function(str){
 
     var i = 0;
 
-    statements = parse_until_token("eof");
+    statements = parse_tokens();
 
     // Log and throw error
     function error(expected){
@@ -86,31 +87,13 @@ opencity.parse = function(str){
 	console.log(e.stack);
 	throw "Parse error";
     }
-    
-    function identifier(){
-	i++;
-	if(toks[i][0] == "identifier"){
-	    return toks[i][1];
-	} else {
-	    error("identifier");
-	}
-    }
-    
-    function colon(){
-        i++;
-	if(toks[i][0] == "colon"){
-	    return toks[i][1];
-	} else {
-	    error("colon");
-	}
-    }
 
-    function end(){
+    function parse_token(token){
 	i++;
-	if(toks[i][0] == "end"){
+	if(toks[i][0] == token){
 	    return toks[i][1];
 	} else {
-	    error("end");
+	    error(token);
 	}
     }
     
@@ -125,11 +108,11 @@ opencity.parse = function(str){
             if(toks[i][0] == "semicolon" || toks[i][0] == "hyphen"){
 		i--;
                 return element;
-            } else if(toks[i][0] == "open_parens") {
+            } else if(toks[i][0] == "open_parens"){
                 // Now we expect a $number and a close_parens
                 i++;
                 if(toks[i][0] == "$number"){
-                   element.catches
+                    element.catches
                         .push(toks[i][1]);
                 } else {
 		    error("$number");
@@ -155,8 +138,8 @@ opencity.parse = function(str){
             elements: []
         };
 	
-	stmt.identifier = identifier();
-	colon();
+	stmt.identifier = parse_token("identifier");
+	parse_token("colon");
 	
 	// Read road elements
         while(true){
@@ -167,7 +150,7 @@ opencity.parse = function(str){
 	    if(toks[i][0] == "hyphen"){
 		// Do nothing
 	    } else if(toks[i][0] == "semicolon") {
-		end();
+		parse_token("end");
 		break;
 	    } else {
 		error("semicolon or hyphen");
@@ -177,12 +160,85 @@ opencity.parse = function(str){
         return stmt;
     }
 
-    function parse_until_token(until){
+    function parse_list(){
+	i++;
+	var args = [];
+	
+	while(true){
+	    if( toks[i][0] == "close_parens" ||
+		toks[i][0] == "assignment"){
+		break;
+	    }
+	    
+	    if(toks[i][0] == "comma"){
+		i++;
+		continue;
+	    } else if(toks[i][0] == "number") {
+		args.push(toks[i]);
+	    } else {
+		error("number");
+	    }
+	    
+	    i++;
+	}
+	
+	return args;
+    }
+    
+    /*
+      Statements are either
+      
+      - a function call:
+      functionname(3,3)
+      - a function call with assignation:
+      a, b = functionname(3,3)
+      
+      Maybe in the future:
+      - an expression with assignation
+      a = 33 + 4 * sin(x);
+    */
+    function parse_statement(){
+	var end = i;
+
+	var stmt = {
+	    type: "",
+	    args: [],
+	    assings: []
+	};
+	
+	if(toks[i][0] == "eof"){
+	    return null;
+	}
+	
+	// Find end
+	while(toks[end][0] != "semicolon"){
+	    if(toks[end][0] == "eof"){
+		error("end of statement (semicolon)");
+	    }
+	    end++;
+	}
+
+	// function call alone
+	if( toks[i][0] == "identifier" &&
+	    toks[i+1][0] == "open_parens" &&
+	    toks[end-1][0] == "close_parens"){
+	    console.log("func call");
+	    stmt.type = "func_call";
+	    stmt.name = toks[i][1];
+	    i++;
+	    stmt.args = parse_list();
+	}
+
+	i = end;
+	return stmt;
+    }
+    
+    function parse_tokens(){
         var curr_stmt = 0;
 
         var stmts = [];
 
-        while(i < toks.length && toks[i][0] != until){
+        while(i < toks.length && toks[i][0] != "eof"){
             if(toks[i][0] == "road"){
                 stmts[curr_stmt] = {
                     type: "road"
@@ -192,7 +248,13 @@ opencity.parse = function(str){
                 
                 curr_stmt++;
             } else {
-		error(until);
+		var stmt = parse_statement();
+		if(stmt != null){
+		    stmts[curr_stmt] = stmt;
+		    curr_stmt++;
+		} else {
+		    break;
+		}
             }
 
             i++;
