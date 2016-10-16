@@ -115,15 +115,12 @@ opencity.parse = function(str){
     }
     
     function road_element(){
-        var curr_stmt = 0;
-
 	i++;
 	
         if(toks[i][0] == "road_element"){
             var element = {};
             element.type = toks[i][1];
             element.catches = [];
-	    
             i++;
             if(toks[i][0] == "semicolon" || toks[i][0] == "hyphen"){
 		i--;
@@ -132,7 +129,7 @@ opencity.parse = function(str){
                 // Now we expect a $number and a close_parens
                 i++;
                 if(toks[i][0] == "$number"){
-                    element.catches
+                   element.catches
                         .push(toks[i][1]);
                 } else {
 		    error("$number");
@@ -145,34 +142,31 @@ opencity.parse = function(str){
         } else {
 	    error("road_element");
         }
+	return element;
     }
     
     function road_block(){
-        var curr_stmt = 0;
-        
-        var stmts = [];
+        var stmt = [];
 
 	// Parse road elements
-        stmts[curr_stmt] = {
+        stmt = {
             type: "road",
 	    identifier: "",
             elements: []
         };
-
-	stmts[curr_stmt].identifier = identifier();
+	
+	stmt.identifier = identifier();
 	colon();
-
+	
 	// Read road elements
         while(true){
-            stmts[curr_stmt].elements
-                .push(road_element());
+            stmt.elements.push(road_element());
 	    i++;
 	    
 	    // Read - or ;
 	    if(toks[i][0] == "hyphen"){
 		// Do nothing
 	    } else if(toks[i][0] == "semicolon") {
-		console.log("semi");
 		end();
 		break;
 	    } else {
@@ -180,10 +174,7 @@ opencity.parse = function(str){
 	    }
         }
 	
-        curr_stmt++;
-	
-	// Parse end
-        return stmts;
+        return stmt;
     }
 
     function parse_until_token(until){
@@ -197,7 +188,7 @@ opencity.parse = function(str){
                     type: "road"
                 };
 		
-                stmts[curr_stmt].elements = road_block();
+                stmts[curr_stmt] = road_block();
                 
                 curr_stmt++;
             } else {

@@ -133,7 +133,7 @@ assert_array_equals(
 var road_statement =
     "road normal_road:\n"+
     "    buildingedge($1)-sidewalk-parkinglane-bikelane-buslane-carlane-middle-carlane-buslane-buildingedge($2);"+
-    "end road;";
+    "end\n";
 
 var stmts = opencity.parse(road_statement).getStatements();
 
@@ -143,7 +143,6 @@ assert_equals(
     "should parse road statement"
 );
 
-
 assert_equals(
     stmts[0].elements[0].type,
     "buildingedge",
@@ -152,7 +151,7 @@ assert_equals(
 
 assert_equals(
     stmts[0].elements[0].catches.length,
-    2,
+    1,
     "should have correct length"
 );
 
@@ -163,7 +162,7 @@ assert_equals(
 );
 
 assert_equals(
-    stmts[0].statements[0].catches[1],
+    stmts[0].elements[9].catches[0],
     "$2",
     "should catch variables"
 );
