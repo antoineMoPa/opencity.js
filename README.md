@@ -7,13 +7,13 @@ It could look something like this:
 
     road normal_road: 
       buildingedge($1)-sidewalk-parkinglane-bikelane-buslane-carlane-middle-carlane-buslane-buildingedge($2);
-    end road;
+    end;
     
     block normal_block:
       $a, $b = normal_road(0.0, 0.0, 1.0, 0.0);
       $c, $d = normal_road(0.0, 1.0, 1.0, 1.0);
       buildings($b,$c);
-    end block;
+    end
     
     block1(0.0, 1.0);
     

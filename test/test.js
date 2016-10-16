@@ -37,6 +37,13 @@ function assert(bool_stmt, msg){
     }
 }
 
+function assert_equals(a, b, msg){
+    if(a != b){
+        fails++;
+        console.log("failed test: "+msg);
+    }
+}
+
 function assert_array_equals(a, b, msg){
     if(array_equals(a, b)){
         return true;
@@ -48,70 +55,124 @@ function assert_array_equals(a, b, msg){
     }
 }
 
+// Tokenizer tests
+
 assert(
     array_equals(
-        opencity.parse("").getTokens(),
-        []
+        opencity.tokenize(""),
+        [["eof"]]
     ),
     "should tokenize empty string"
 );
 
 assert_array_equals(
-    opencity.parse(" ").getTokens()[0],
+    opencity.tokenize(" ")[0],
     ["whitespace"," "],
     "should tokenize whitespace"
 );
 
 assert_array_equals(
-    opencity.parse("\n ").getTokens()[0],
+    opencity.tokenize("\n ")[0],
     ["whitespace","\n "],
     "should tokenize whitespace"
 );
 
 assert_array_equals(
-    opencity.parse("potato").getTokens()[0],
+    opencity.tokenize("potato")[0],
     ["identifier","potato"],
     "should tokenize identifier"
 );
 
 assert_array_equals(
-    opencity.parse("potato").getTokens()[0],
+    opencity.tokenize("potato")[0],
     ["identifier","potato"],
     "should tokenize identifier"
 );
 
 assert_array_equals(
-    opencity.parse("123.67").getTokens()[0],
+    opencity.tokenize("123.67")[0],
     ["number","123.67"],
     "should tokenize number"
 );
 
 assert_array_equals(
-    opencity.parse("123.67").getTokens()[0],
+    opencity.tokenize("123.67")[0],
     ["number","123.67"],
     "should tokenize floating point number"
 );
 
 assert_array_equals(
-    opencity.parse("543").getTokens()[0],
+    opencity.tokenize("543")[0],
     ["number","543"],
     "should tokenize integer number"
 );
 
 assert_array_equals(
-    opencity.parse(",").getTokens()[0],
+    opencity.tokenize(",")[0],
     ["comma",","],
     "should tokenize comma"
 );
 
 assert_array_equals(
-    opencity.parse("(id)").getTokens(),
+    opencity.tokenize("(id)"),
     [["open_parens","("],
      ["identifier","id"],
-     ["close_parens",")"]],
+     ["close_parens",")"],
+     ["eof"]],
     "should tokenize parens"
 );
 
+assert_array_equals(
+    opencity.tokenize(" ", false),
+    [["eof"]],
+    "should not tokenize whitespace when requested not to"
+);
 
+// Parser tests
+
+var road_statement =
+    "road normal_road:\n"+
+    "    buildingedge($1)-sidewalk-parkinglane-bikelane-buslane-carlane-middle-carlane-buslane-buildingedge($2);"+
+    "end road;";
+
+var stmts = opencity.parse(road_statement).getStatements();
+
+assert_equals(
+    stmts[0].type,
+    "road",
+    "should parse road statement"
+);
+
+
+assert_equals(
+    stmts[0].elements[0].type,
+    "buildingedge",
+    "should have correct type"
+);
+
+assert_equals(
+    stmts[0].elements[0].catches.length,
+    2,
+    "should have correct length"
+);
+
+assert_equals(
+    stmts[0].elements[0].catches[0],
+    "$1",
+    "should catch variables"
+);
+
+assert_equals(
+    stmts[0].statements[0].catches[1],
+    "$2",
+    "should catch variables"
+);
+
+
+assert_equals(
+    stmts[0].elements[1].type,
+    "sidewalk",
+    "should parse road statement"
+);
 
 console.log(fails+" tests failed.");
