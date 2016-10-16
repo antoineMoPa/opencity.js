@@ -77,51 +77,73 @@ opencity.parse = function(str){
 
     statements = parse_until_token("eof");
 
-    function colon(){
-        
+    // Log and throw error
+    function error(expected){
+	console.log("Expected: "+expected+
+		    " but found "+(toks[i][0])+": "+
+		    (toks[i][1]));
+	var e = new Error();
+	console.log(e.stack);
+	throw "Parse error";
     }
     
     function identifier(){
+	i++;
+	if(toks[i][0] == "identifier"){
+	    return toks[i][1];
+	} else {
+	    error("identifier");
+	}
+    }
+    
+    function colon(){
+        i++;
+	if(toks[i][0] == "colon"){
+	    return toks[i][1];
+	} else {
+	    error("colon");
+	}
+    }
 
+    function end(){
+	i++;
+	if(toks[i][0] == "end"){
+	    return toks[i][1];
+	} else {
+	    error("end");
+	}
     }
     
     function road_element(){
         var curr_stmt = 0;
-        var stmts = [];
-        console.log(toks,i);
-        while(i < toks.length){
-            if(toks[i][0] == "road_element"){
-                stmts[curr_stmt] = {};
-                stmts[curr_stmt].type = toks[i][1];
-                stmts[curr_stmt].catches = [];
 
+	i++;
+	
+        if(toks[i][0] == "road_element"){
+            var element = {};
+            element.type = toks[i][1];
+            element.catches = [];
+	    
+            i++;
+            if(toks[i][0] == "semicolon" || toks[i][0] == "hyphen"){
+		i--;
+                return element;
+            } else if(toks[i][0] == "open_parens") {
+                // Now we expect a $number and a close_parens
                 i++;
-                
-                if(toks[i][0] == "semicolon"){
-                    i--;
-                    return stmts;
-                } else if(toks[i][0] == "open_parens") {
-                    // Now we expect a $number and a close_parens
-                    i++;
-                    if(toks[i][0] == "$number"){
-                        stmts[curr_stmt].catches
-                            .push(toks[i][1]);
-                    } else {
-                        console.log("expected $number not found");
-                        throw "Parse error";
-                    }
-                    i++;
-                    if(toks[i][0] != "close_parens"){
-                        console.log(
-                            "expected close_parens not found"
-                        );
-                        throw "Parse error";
-                    }
+                if(toks[i][0] == "$number"){
+                    element.catches
+                        .push(toks[i][1]);
+                } else {
+		    error("$number");
                 }
-            } else {
-                console.log("expected road_element not found");
-                throw "Parse error";
+                i++;
+                if(toks[i][0] != "close_parens"){
+		    error("close_parens");
+                }
             }
+        } else {
+	    error("road_element");
         }
     }
     
@@ -130,23 +152,37 @@ opencity.parse = function(str){
         
         var stmts = [];
 
-        while(i < toks.length && toks[i][0] != "end"){
-            stmts[curr_stmt] = {
-                type: "road",
-                elements: []
-            };
-            
-            do {
-                i++;
-                stmts[curr_stmt].elements
-                    .push(road_element());
-            } while (toks[i][0] != "semicolon");
-            
-            curr_stmt++;
-            
-            i++;
+	// Parse road elements
+        stmts[curr_stmt] = {
+            type: "road",
+	    identifier: "",
+            elements: []
+        };
+
+	stmts[curr_stmt].identifier = identifier();
+	colon();
+
+	// Read road elements
+        while(true){
+            stmts[curr_stmt].elements
+                .push(road_element());
+	    i++;
+	    
+	    // Read - or ;
+	    if(toks[i][0] == "hyphen"){
+		// Do nothing
+	    } else if(toks[i][0] == "semicolon") {
+		console.log("semi");
+		end();
+		break;
+	    } else {
+		error("semicolon or hyphen");
+	    }
         }
-        
+	
+        curr_stmt++;
+	
+	// Parse end
         return stmts;
     }
 
@@ -160,13 +196,12 @@ opencity.parse = function(str){
                 stmts[curr_stmt] = {
                     type: "road"
                 };
-
+		
                 stmts[curr_stmt].elements = road_block();
                 
                 curr_stmt++;
             } else {
-                console.log("expected '"+until+"' not found.");
-                throw "Parse error";
+		error(until);
             }
 
             i++;
