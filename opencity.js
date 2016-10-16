@@ -76,11 +76,19 @@ opencity.parse = function(str){
     var i = 0;
 
     statements = parse_until_token("eof");
+
+    function colon(){
+        
+    }
+    
+    function identifier(){
+
+    }
     
     function road_element(){
         var curr_stmt = 0;
         var stmts = [];
-        //console.log(toks,i);
+        console.log(toks,i);
         while(i < toks.length){
             if(toks[i][0] == "road_element"){
                 stmts[curr_stmt] = {};
