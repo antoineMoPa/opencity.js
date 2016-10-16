@@ -10,9 +10,9 @@ It could look something like this:
     end;
     
     block normal_block:
-      $a, $b = normal_road(0.0, 0.0, 1.0, 0.0);
-      $c, $d = normal_road(0.0, 1.0, 1.0, 1.0);
-      buildings($b,$c);
+      a, b = normal_road(0.0, 0.0, 1.0, 0.0);
+      c, d = normal_road(0.0, 1.0, 1.0, 1.0);
+      buildings(b,c);
     end
     
     block1(0.0, 1.0);

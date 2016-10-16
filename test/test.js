@@ -167,11 +167,46 @@ assert_equals(
     "should catch variables"
 );
 
-
 assert_equals(
     stmts[0].elements[1].type,
     "sidewalk",
     "should parse road statement"
+);
+
+// Road instantiation
+
+var road_i_statement = road_statement +
+    "normal_road(0.0, 0.0, 1.0, 0.0)\n";
+
+var stmts = opencity.parse(road_i_statement).getStatements();
+
+assert_equals(
+    stmts[1].type,
+    "func_call",
+    "should parse function call"
+);
+
+assert_equals(
+    stmts[1].name,
+    "normal_road",
+    "should parse function name"
+);
+
+assert_array_equals(
+    stmts[1].args,
+    ["0.0","0.0","1.0","0.0"],
+    "should read arguments"
+);
+
+var road_i2_statement = road_statement +
+    "a, b = normal_road(0.0, 0.0, 1.0, 0.0)\n";
+
+var stmts = opencity.parse(road_i2_statement).getStatements();
+
+assert_array_equals(
+    stmts[1].assings,
+    ["a","b"],
+    "should know where to store results"
 );
 
 console.log(fails+" tests failed.");
