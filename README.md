@@ -1,5 +1,5 @@
 # opencity.js
-A city definition language I should start implementing soon
+A city definition language. Its purpose will be to procedurally generate road networks, highways, etc. It could be used in web based games to generate maps.
 
 # Examples
 
@@ -24,6 +24,8 @@ Some Reserved keywords:
     roundabout
 
 # Development
+
+Currently, thanks to a weekend of work, there is a tokenizer and a simple parser for road definitions and function calls. The next step will be to build the interpreter that will go through the statements and eventually draw the road network to a `<canvas>` element.
 
 ## Tests
 
