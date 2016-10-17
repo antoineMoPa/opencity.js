@@ -221,8 +221,8 @@ assert_equals(
 );
 
 assert_array_equals(
-    stmts[1].assings,
-    ["a","b"],
+    stmts[1].assigns,
+    [["identifier","a"],["identifier","b"]],
     "should know where to store results"
 );
 

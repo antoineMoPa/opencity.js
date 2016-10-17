@@ -169,11 +169,12 @@ opencity.parse = function(str){
 		toks[i][0] == "assignment"){
 		break;
 	    }
-	    
 	    if(toks[i][0] == "comma"){
 		i++;
 		continue;
 	    } else if(toks[i][0] == "number") {
+		args.push(toks[i]);
+	    } else if(toks[i][0] == "identifier"){
 		args.push(toks[i]);
 	    } else {
 		error("number");
@@ -203,7 +204,7 @@ opencity.parse = function(str){
 	var stmt = {
 	    type: "",
 	    args: [],
-	    assings: []
+	    assigns: []
 	};
 	
 	if(toks[i][0] == "eof"){
@@ -222,13 +223,38 @@ opencity.parse = function(str){
 	if( toks[i][0] == "identifier" &&
 	    toks[i+1][0] == "open_parens" &&
 	    toks[end-1][0] == "close_parens"){
-	    console.log("func call");
+	    stmt.type = "func_call";
+	    stmt.name = toks[i][1];
+	    i++;
+	    stmt.args = parse_list();
+	} else if(toks[end-1][0] == "close_parens"){
+	    i--;
+	    
+	    // function call with return assignments
+	    // find assignment symbol
+	    var assign = i;
+	    
+	    while(true){
+		if(assign == end-1){
+		    error("assignment operator");
+		} else if(toks[assign][0] == "assignment"){
+		    break;
+		}
+		assign++;
+	    }
+
+	    // read assignments
+	    stmt.assigns = parse_list();
+	    
+	    i = assign;
+	    i++;
 	    stmt.type = "func_call";
 	    stmt.name = toks[i][1];
 	    i++;
 	    stmt.args = parse_list();
 	}
 
+	
 	i = end;
 	return stmt;
     }
