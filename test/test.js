@@ -161,6 +161,12 @@ assert_equals(
 );
 
 assert_equals(
+    stmts[0].catches,
+    2,
+    "should have correct length"
+);
+
+assert_equals(
     stmts[0].elements[0].catches[0],
     "$1",
     "should catch variables"
